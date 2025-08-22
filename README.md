@@ -27,7 +27,7 @@
   more.
 - **Captions**: Fetch and process captions (subtitles) for YouTube videos.
 - **YouTube Search**: Perform YouTube searches and fetch metadata for the top results.
-
+- **Uses proxxies**: Send api requests through a proxy.
 ## Installation
 
 Install Meta-YT using pip:
@@ -60,7 +60,8 @@ print(yt.video.title)
 #### Using a Video URL
 
 ```python
-yt = YouTube("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+proxies = [{'https': 'https://proxy1.com:8888'}, {'https': 'https://proxy1.com:8888'}]
+yt = YouTube("https://www.youtube.com/watch?v=dQw4w9WgXcQ", proxies)
 print(yt.video.title)
 ```
 
