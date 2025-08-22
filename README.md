@@ -60,6 +60,13 @@ print(yt.video.title)
 #### Using a Video URL
 
 ```python
+yt = YouTube("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+print(yt.video.title)
+```
+
+#### Using a Video URL WIth Proxies
+
+```python
 proxies = [{'https': 'https://proxy1.com:8888'}, {'https': 'https://proxy1.com:8888'}]
 yt = YouTube("https://www.youtube.com/watch?v=dQw4w9WgXcQ", proxies)
 print(yt.video.title)
