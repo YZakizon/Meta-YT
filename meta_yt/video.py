@@ -1,8 +1,10 @@
 """This module contains the developer interface for video fetching."""
 
 import requests
+import copy
 
 from .caption import Caption
+from .exceptions import VideoFetchError
 
 YOUTUBE_API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
 
@@ -17,7 +19,7 @@ class Video:
     :type retries: int
     """
 
-    def __init__(self, videoId: str, retries: int = 5):
+    def __init__(self, videoId: str, retries: int = 5, proxies: list = []):
         """
         Initialize a Video object with details fetched from the YouTube API.
 
@@ -25,6 +27,8 @@ class Video:
         :type videoId: str
         :param retries: The number of retry attempts for fetching video details. Defaults to 5.
         :type retries: int
+        :param proxies: List of proxy dict. ie: [{'https': 'https://proxy1.com:8888', 'http': 'http://proxy2.com:8888'}, {'https': 'https://proxy3.com:8888'}]
+        :type proxies: list 
         """
         url = "https://www.youtube.com/youtubei/v1/player"
         params = {
@@ -43,11 +47,32 @@ class Video:
             "api_key": YOUTUBE_API_KEY,
         }
 
+        len_proxies = len(proxies)
         for attempt in range(retries):
             try:
-                response = requests.post(url, params=params, json=json_data, timeout=5)
+                proxy = None
+                if len_proxies > 0:
+                    proxy = proxies[attempt % len_proxies]
+                    # need to deep copy this, otherwise it altered the proxies variable
+                    proxy = copy.deepcopy(proxy)
+                    print(f"using proxies: {proxy}")
+
+                response = requests.post(url, params=params, json=json_data, timeout=5, proxies=proxy)
+                if response.status_code != 200:
+                    print(f"get video details '{url}' failed status_code: {response.status_code}, json: {response.json()}")
+                    
                 response.raise_for_status()
-                data = response.json()["videoDetails"]
+                jsonResp = response.json()
+
+                data = jsonResp.get("videoDetails", None)
+                if not data:
+                    playabilityStatus = jsonResp.get("playabilityStatus")
+                    status = ""
+                    reason = ""
+                    if playabilityStatus:
+                        status = playabilityStatus.get("status")
+                        reason = playabilityStatus.get("reason")
+                    raise VideoFetchError(videoId, status, reason)
 
                 video_id = data["videoId"]
                 channel_id = data["channelId"]

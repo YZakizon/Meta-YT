@@ -49,12 +49,13 @@ def get_video_id(url: str) -> Optional[str]:
 class YouTube:
     """A class to represent a YouTube object that handles querying and contains the video."""
 
-    def __init__(self, query: str):
+    def __init__(self, query: str, proxies: list = []):
         """
         Initialize a YouTube object.
 
         Args:
             query (str): The search query or video URL.
+            proxies (list): list of proxies dictionary
         """
         self.video = None
         result = get_video_id(query)
@@ -65,4 +66,4 @@ class YouTube:
         else:
             self.videoId = result
 
-        self.video = Video(self.videoId)
+        self.video = Video(self.videoId, proxies=proxies)

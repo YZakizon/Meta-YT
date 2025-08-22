@@ -8,3 +8,4 @@ __version__ = "0.1.2-beta"
 from .caption import Caption
 from .video import Video
 from .youtube import YouTube
+from .exceptions import VideoFetchError, VideoUnavailable
